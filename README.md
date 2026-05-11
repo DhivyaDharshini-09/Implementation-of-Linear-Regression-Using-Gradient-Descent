@@ -23,43 +23,79 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-data=pd.read_csv(r"C:\Users\acer\Downloads\50_Startups.csv")
-X=data['R&D Spend'].values
-y=data['Profit'].values
+# Load dataset
+df = pd.read_csv(r"C:\Users\acer\Downloads\50_Startups.csv")
 
-X=(X-X.mean())/X.std()
-m=0
-b=0
-learning_rate=0.01
-epochs=1000
-n=len(X)
+# Let's assume 'R&D Spend' predicts 'Profit'
+X = df['R&D Spend'].values
+y = df['Profit'].values
 
-for i in range(epochs):
-    y_pred=m*X+b
+# Normalize data (important for gradient descent)
+X = (X - X.mean()) / X.std()
 
-    dm=(-2/n)*np.sum(X*(y-y_pred))
-    db=(-2/n)*np.sum(y-y_pred)
+# Add bias term (x0 = 1)
+m = len(X)
+X = np.c_[np.ones(m), X]
 
-    m=m-learning_rate*dm
-    b=b-learning_rate*db
+# Initialize parameters
+theta = np.zeros(2)
 
-print("Slope(m):",m)
-print("Intercept(b):",b)
+# Hyperparameters
+alpha = 0.01   # learning rate
+iterations = 1000
 
-y_pred=m*X+b
+# Cost function
+def compute_cost(X, y, theta):
+    m = len(y)
+    predictions = X.dot(theta)
+    return (1/(2*m)) * np.sum((predictions - y) ** 2)
 
-plt.scatter(X,y)
-plt.plot(X,y_pred)
+# Gradient Descent
+def gradient_descent(X, y, theta, alpha, iterations):
+    m = len(y)
+    cost_history = []
 
+    for i in range(iterations):
+        predictions = X.dot(theta)
+        errors = predictions - y
+
+        gradients = (1/m) * X.T.dot(errors)
+        theta = theta - alpha * gradients
+
+        cost = compute_cost(X, y, theta)
+        cost_history.append(cost)
+
+    return theta, cost_history
+
+# Train model
+theta, cost_history = gradient_descent(X, y, theta, alpha, iterations)
+
+print("Final Parameters (theta):", theta)
+
+# Plot cost function
+plt.plot(cost_history)
+plt.xlabel("Iterations")
+plt.ylabel("Cost")
+plt.title("Cost Reduction over Iterations")
+plt.show()
+
+# Predictions
+predictions = X.dot(theta)
+
+# Plot regression line
+plt.scatter(X[:,1], y, color='blue')
+plt.plot(X[:,1], predictions, color='red')
 plt.xlabel("R&D Spend (Normalized)")
 plt.ylabel("Profit")
-plt.title("Gradient Descent on 50_Startups Dataset")
+plt.title("Linear Regression using Gradient Descent")
 plt.show()
 
 ```
 
 ## Output:
-<img width="1870" height="819" alt="Screenshot 2026-04-29 154342" src="https://github.com/user-attachments/assets/22c0e1c0-aa11-4b22-8e99-ea0220c0fa9f" />
+<img width="827" height="612" alt="Screenshot 2026-05-11 151736" src="https://github.com/user-attachments/assets/9eee68a9-8881-4681-a4dd-7f9413e071c9" />
+<img width="893" height="585" alt="Screenshot 2026-05-11 151743" src="https://github.com/user-attachments/assets/19064307-72bb-45ac-89dd-fec524c26cd9" />
+
 
 
 
